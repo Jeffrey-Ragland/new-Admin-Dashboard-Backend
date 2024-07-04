@@ -2,7 +2,7 @@ import express from "express";
 import { login, signup,InsertData,readLimitMain,read,readSensorGraph,
     BPCL,BPCL_READ,insertProjectData,BPCL_TOF_INSERT,BPCL_ASCAN_CLEAR,Creating_project,leveldata,
     displayProjectData, levelinsert,levelchartdata,displayProjectDataLimit,levelexceldata,DisplayAllData,
-    displayProjectReportData
+    displayProjectReportData, insertIOCLData, getIOCLData
 } from "../controllers/sensor.js";
 
 const router = express.Router();
@@ -32,6 +32,9 @@ router.get('/leveldata/:id', leveldata)
 router.get('/levelchartdata/:sensorId/:dataField', levelchartdata)
 router.get('/levelexceldata', levelexceldata)
 
+//iocl - jeff 
+router.get('/insertIOCLData', insertIOCLData);
+router.get('/getIOCLData', getIOCLData);
 
 
 export default router;

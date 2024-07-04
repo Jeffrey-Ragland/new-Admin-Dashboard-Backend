@@ -1,11 +1,12 @@
 import bpclModel from '../model/bpclModel.js';
 import bpcl_tof_insert from '../model/bpcl_tof_insert.js';
-import Data from '../model/sensorModel.js'
-import EmployeeModel from '../model/userModel.js'
-import bcrypt from "bcryptjs"
-import jwt from "jsonwebtoken"
+import Data from '../model/sensorModel.js';
+import EmployeeModel from '../model/userModel.js';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import mongoose from 'mongoose';
-import levelmodel from '../model/levelmodel.js'
+import levelmodel from '../model/levelmodel.js';
+import ioclModel from '../model/ioclModel.js';
 
 //Register
 export const signup =async (req,res) =>
@@ -110,6 +111,43 @@ export const InsertData = async (req, res) => {
         res.status(200).json({ message: "Data inserted successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+// iocl - jeff api
+
+// http://localhost:4000/sensor/insertIOCLData?sensor1=20&sensor2=30&sensor3=40
+export const insertIOCLData = async (req,res) => 
+{
+    const {sensor1, sensor2, sensor3} = req.query;
+
+    if (!sensor1 || !sensor2 || !sensor3 ) {
+      return res.status(400).json({ error: "Missing required parameters" });
+    }
+    try {
+      const ioclData = {
+        Sensor1: sensor1,
+        Sensor2: sensor2,
+        Sensor3: sensor3,
+      };
+      await ioclModel.create(ioclData);
+      res.status(200).json({ message: "Data inserted successfully" });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+}
+
+export const getIOCLData = async (req,res) => {
+    try {
+        const ioclData = await ioclModel.find().sort({ _id: -1 });
+
+        if(ioclData.length > 0) {
+            res.json({success: true, data: ioclData});
+        } else {
+            res.json({ success: false, message: "IOCL Data not found" });
+        }
+    } catch(error) {
+        res.status(500).json({error});
     }
 };
 
