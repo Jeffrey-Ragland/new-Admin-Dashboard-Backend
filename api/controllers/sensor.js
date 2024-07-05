@@ -139,7 +139,8 @@ export const insertIOCLData = async (req,res) =>
 
 export const getIOCLData = async (req,res) => {
     try {
-        const ioclData = await ioclModel.find().sort({ _id: -1 });
+        const limit = parseInt(req.query.limit);
+        const ioclData = await ioclModel.find().sort({ _id: -1 }).limit(limit);
 
         if(ioclData.length > 0) {
             res.json({success: true, data: ioclData});
