@@ -9,10 +9,11 @@ import levelmodel from '../model/levelmodel.js';
 import ioclModel from '../model/ioclModel.js';
 
 //Register
+// http://localhost:4000/sensor/signup?project=[projectName]&userid=[email]&password=[password]
 export const signup =async (req,res) =>
 {
     try{
-        const {project,userid,password} = req.body;
+        const {project,userid,password} = req.query;
        // console.log("project name",project,userid,password)
         const newPassword = await bcrypt.hash(password, 10);
         await EmployeeModel.create({
@@ -53,6 +54,7 @@ export const login = (req,res) =>
                     if(response)
                     {
                         let redirectUrl = '';
+                        let projectNumber = "";
                         if (user.Project === "SKF") {
                           redirectUrl = "SKF";
                         } else if (user.Project === "ADMIN") {
@@ -61,9 +63,16 @@ export const login = (req,res) =>
                           redirectUrl = "BPCL";
                         } else if (user.Project === "IOCL") {
                           redirectUrl = "IOCL";
+                        } else if (user.Project === "DRDO") {
+                          redirectUrl = "DRDO";
+                        } else if (user.Project.startsWith('DEMOKIT')) {
+                          let parts = user.Project.split('DEMOKIT');
+                          projectNumber = parts[1];
+                          redirectUrl = "DEMOKIT";
                         }
+
                         // token generation
-                        const token = jwt.sign({Email: user.Email}, "jwt-secret-key", {expiresIn:"1d"})
+                        const token = jwt.sign({Email: user.Email}, "jwt-secret-key", {expiresIn:"1d"});
                         // role assignment
                         let role='';
                         if(user.Email === 'admin@xyma.in')
@@ -75,7 +84,7 @@ export const login = (req,res) =>
                             role = 'client';
                         }
                 
-                        res.json({token : token, role: role, redirectUrl: redirectUrl}); 
+                        res.json({token : token, role: role, redirectUrl: redirectUrl, projectNumber}); 
                     }
                     else
                     {

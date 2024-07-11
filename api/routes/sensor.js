@@ -8,7 +8,7 @@ import { login, signup,InsertData,readLimitMain,read,readSensorGraph,
 const router = express.Router();
 
 //register
-router.post('/signup',signup);
+router.get('/signup',signup);
 router.post('/login',login);
 router.get('/InsertData',InsertData);
 router.get('/readLimitMain',readLimitMain); 
