@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import mongoose from 'mongoose';
 import levelmodel from '../model/levelmodel.js';
 import ioclModel from '../model/ioclModel.js';
+import demokitUtmapsModel from '../model/demokitUtmapsModel.js';
 
 //Register
 // http://localhost:4000/sensor/signup?project=[projectName]&userid=[email]&password=[password]
@@ -66,8 +67,7 @@ export const login = (req,res) =>
                         } else if (user.Project === "DRDO") {
                           redirectUrl = "DRDO";
                         } else if (user.Project.startsWith('DEMOKIT')) {
-                          let parts = user.Project.split('DEMOKIT');
-                          projectNumber = parts[1];
+                          projectNumber = user.Project;
                           redirectUrl = "DEMOKIT";
                         }
 
@@ -568,3 +568,50 @@ export const levelchartdata = async (req, res) => {
             .json({ error: "Internal Server Error", details: error.message });
         }
       };
+
+
+// demokit api
+
+// http://localhost:4000/sensor/insertDemokitUtmapsData?projectName=DEMOKIT01&sensor1=[insertData]&sensor2=[insertData]&sensor3=[insertData]&sensor4=[insertData]
+
+export const insertDemokitUtmapsData = async (req,res) => {
+
+    const {projectName, sensor1, sensor2, sensor3, sensor4} = req.query;
+
+    if ( !projectName || !sensor1 || !sensor2 || !sensor3 || !sensor4 ) {
+        return res.status(400).json({ error: 'Missing required parameters'});
+    }
+    try {
+      const demokitUtmapsData = {
+        ProjectName : projectName,
+        Sensor1: sensor1,
+        Sensor2: sensor2,
+        Sensor3: sensor3,
+        Sensor4: sensor4,
+      };
+      await demokitUtmapsModel.create(demokitUtmapsData);
+      res.status(200).json({ message: "Data inserted successfully" });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+};
+
+export const getDemokitUtmapsData = async (req,res) => {
+    try {
+      const projectName = req.query.projectNumber;
+      const limit = parseInt(req.query.limit);
+
+      const demokitUtmapsData = await demokitUtmapsModel
+        .find({ ProjectName: projectName })
+        .sort({ _id: -1 })
+        .limit(limit);
+
+      if (demokitUtmapsData.length > 0) {
+        res.json({ success: true, data: demokitUtmapsData });
+      } else {
+        res.json({ success: false, message: "Utmaps Data not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error });
+    };
+};

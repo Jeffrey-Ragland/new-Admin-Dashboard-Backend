@@ -4,15 +4,15 @@ import time
 
 def generate_sensor_data():
     return {
-        'projectName': 'TESTPROJECT',
-        's1': random.randint(1, 100),
-        's2': random.randint(1, 100),
-        's3': random.randint(1, 100),
-        's4': random.randint(1, 100),
+        'projectName': 'DEMOKIT01',
+        'sensor1': random.randint(1, 100),
+        'sensor2': random.randint(1, 100),
+        'sensor3': random.randint(1, 100),
+        'sensor4': random.randint(1, 100),
     }
 
 def push_sensor_data():
-    url = 'http://localhost:4000/sensor/insertProjectData'
+    url = 'http://localhost:4000/sensor/insertDemokitUtmapsData'
     while True:
         sensor_data = generate_sensor_data()
         try:
