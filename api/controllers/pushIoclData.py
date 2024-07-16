@@ -5,14 +5,11 @@ import time
 def generate_sensor_data():
     return {
         'projectName': 'DEMOKIT01',
-        'sensor1': random.randint(1, 100),
-        'sensor2': random.randint(1, 100),
-        'sensor3': random.randint(1, 100),
-        'sensor4': random.randint(1, 100),
+        'level': random.randint(1, 100),
     }
 
 def push_sensor_data():
-    url = 'http://localhost:4000/sensor/insertDemokitUtmapsData'
+    url = 'http://localhost:4000/sensor/insertDemokitZtarData'
     while True:
         sensor_data = generate_sensor_data()
         try:
@@ -23,7 +20,7 @@ def push_sensor_data():
                 print(f"Failed to insert data: {response.status_code}, {response.text}")
         except requests.exceptions.RequestException as e:
             print(f"Error connecting to the API: {e}")
-        time.sleep(0.1) 
+        time.sleep(0.01) 
 
 if __name__ == "__main__":
     push_sensor_data()

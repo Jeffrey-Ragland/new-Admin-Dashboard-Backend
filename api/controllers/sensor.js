@@ -8,6 +8,8 @@ import mongoose from 'mongoose';
 import levelmodel from '../model/levelmodel.js';
 import ioclModel from '../model/ioclModel.js';
 import demokitUtmapsModel from '../model/demokitUtmapsModel.js';
+import demokitPortsModel from '../model/demokitPortsModel.js';
+import demokitZtarModel from '../model/demokitZtarModel.js';
 
 //Register
 // http://localhost:4000/sensor/signup?project=[projectName]&userid=[email]&password=[password]
@@ -570,7 +572,7 @@ export const levelchartdata = async (req, res) => {
       };
 
 
-// demokit api
+// demokit utmaps api
 
 // http://localhost:4000/sensor/insertDemokitUtmapsData?projectName=DEMOKIT01&sensor1=[insertData]&sensor2=[insertData]&sensor3=[insertData]&sensor4=[insertData]
 
@@ -640,4 +642,141 @@ export const getDemokitUtmapsReport = async (req,res) => {
     } catch(error) {
         res.status(500).json({error});
     };
-}
+};
+
+// demokit ports api
+// http://localhost:4000/sensor/insertDemokitPortsData?projectName=DEMOKIT01&temperature=[insertData]&density=[insertData]&viscosity=[insertData]
+
+export const insertDemokitPortsData = async (req,res) => {
+
+    const {projectName, temperature, density, viscosity} = req.query;
+
+    if( !projectName || !temperature || !density || !viscosity ) {
+        return res.status(400).json({ error: 'Missing required parameters'});
+    }
+    try {
+      const demokitPortsData = {
+        ProjectName : projectName,
+        Temperature: temperature,
+        Density: density,
+        Viscosity: viscosity,
+      };
+      await demokitPortsModel.create(demokitPortsData);
+      res.status(200).json({ message: "Data inserted successfully" });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+};
+
+export const getDemokitPortsData = async (req, res) => {
+  try {
+    const projectName = req.query.projectNumber;
+    const limit = parseInt(req.query.limit);
+
+    const demokitPortsData = await demokitPortsModel
+      .find({ ProjectName: projectName })
+      .sort({ _id: -1 })
+      .limit(limit);
+
+    if (demokitPortsData.length > 0) {
+      res.json({ success: true, data: demokitPortsData });
+    } else {
+      res.json({ success: false, message: "Ports Data not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+export const getDemokitPortsReport = async (req, res) => {
+  try {
+    const { fromDate, toDate, projectName } = req.query;
+
+    let query = { ProjectName: projectName };
+
+    if (fromDate && toDate) {
+      const newToDay = new Date(toDate);
+      newToDay.setDate(newToDay.getDate() + 1);
+      query.createdAt = { $gte: new Date(fromDate), $lte: newToDay };
+    }
+
+    const demokitPortsReport = await demokitPortsModel
+      .find(query)
+      .sort({ _id: -1 });
+
+    if (demokitPortsReport.length > 0) {
+      res.json({ success: true, data: demokitPortsReport });
+    } else {
+      res.json({ success: false, message: "Ports data not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+// demokit ztar api
+// http://localhost:4000/sensor/insertDemokitZtarData?projectName=DEMOKIT01&level=[insertData]
+
+export const insertDemokitZtarData = async (req, res) => {
+  const { projectName, level } = req.query;
+
+  if (!level) {
+    return res.status(400).json({ error: "Missing required parameters" });
+  }
+  try {
+    const demokitZtarData = {
+      ProjectName: projectName,
+      Level: level,
+    };
+    await demokitZtarModel.create(demokitZtarData);
+    res.status(200).json({ message: "Data inserted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getDemokitZtarData = async (req, res) => {
+  try {
+    const projectName = req.query.projectNumber;
+    const limit = parseInt(req.query.limit);
+
+    const demokitZtarData = await demokitZtarModel
+      .find({ ProjectName: projectName })
+      .sort({ _id: -1 })
+      .limit(limit);
+
+    if (demokitZtarData.length > 0) {
+      res.json({ success: true, data: demokitZtarData });
+    } else {
+      res.json({ success: false, message: "Ztar Data not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+export const getDemokitZtarReport = async (req, res) => {
+  try {
+    const { fromDate, toDate, projectName } = req.query;
+
+    let query = { ProjectName: projectName };
+
+    if (fromDate && toDate) {
+      const newToDay = new Date(toDate);
+      newToDay.setDate(newToDay.getDate() + 1);
+      query.createdAt = { $gte: new Date(fromDate), $lte: newToDay };
+    }
+
+    const demokitZtarReport = await demokitZtarModel
+      .find(query)
+      .sort({ _id: -1 });
+
+    if (demokitZtarReport.length > 0) {
+      res.json({ success: true, data: demokitZtarReport });
+    } else {
+      res.json({ success: false, message: "Ztar data not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
