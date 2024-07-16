@@ -615,3 +615,29 @@ export const getDemokitUtmapsData = async (req,res) => {
       res.status(500).json({ error });
     };
 };
+
+export const getDemokitUtmapsReport = async (req,res) => {
+    try {
+        const {fromDate, toDate, projectName} = req.query;
+
+        let query = {ProjectName : projectName};
+
+        if (fromDate && toDate) {
+            const newToDay = new Date(toDate);
+            newToDay.setDate(newToDay.getDate() + 1);
+            query.createdAt = { $gte: new Date(fromDate), $lte: newToDay };
+        } 
+
+        const demokitUtmapsReport = await demokitUtmapsModel
+          .find(query)
+          .sort({ _id: -1 });
+
+        if (demokitUtmapsReport.length > 0) {
+            res.json({success: true, data: demokitUtmapsReport});
+        } else {
+            res.json({success: false, message: 'Utmaps data not found'});
+        }
+    } catch(error) {
+        res.status(500).json({error});
+    };
+}

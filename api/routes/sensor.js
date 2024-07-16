@@ -2,7 +2,7 @@ import express from "express";
 import { login, signup,InsertData,readLimitMain,read,readSensorGraph,
     BPCL,BPCL_READ,insertProjectData,BPCL_TOF_INSERT,BPCL_ASCAN_CLEAR,Creating_project,leveldata,
     displayProjectData, levelinsert,levelchartdata,displayProjectDataLimit,levelexceldata,DisplayAllData,
-    displayProjectReportData, insertIOCLData, getIOCLData, insertDemokitUtmapsData, getDemokitUtmapsData
+    displayProjectReportData, insertIOCLData, getIOCLData, insertDemokitUtmapsData, getDemokitUtmapsData, getDemokitUtmapsReport
 } from "../controllers/sensor.js";
 
 const router = express.Router();
@@ -39,6 +39,7 @@ router.get('/getIOCLData', getIOCLData);
 // demokit 
 router.get("/insertDemokitUtmapsData", insertDemokitUtmapsData);
 router.get("/getDemokitUtmapsData", getDemokitUtmapsData);
+router.get("/getDemokitUtmapsReport", getDemokitUtmapsReport);
 
 export default router;
 
