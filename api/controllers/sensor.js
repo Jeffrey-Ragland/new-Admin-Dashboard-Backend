@@ -72,6 +72,9 @@ export const login = (req,res) =>
                           projectNumber = user.Project;
                           redirectUrl = "DEMOKIT";
                         }
+                        else {
+                          redirectUrl = 'AutomatedDashboard'
+                        }
 
                         // token generation
                         const token = jwt.sign({Email: user.Email}, "jwt-secret-key", {expiresIn:"1d"});
@@ -210,41 +213,9 @@ export const readSensorGraph =  async(req, res) =>
 
 };
 
-const projectDataSchema = new mongoose.Schema({
-    //projectName: String
-});
-
-export const insertProjectData = (req, res) => {
-    const projectName = req.query.projectName;
-    const parameterValues = Object.keys(req.query).filter(key => key !== 'projectName');
 
 
 
-    //creates dynamic schema
-    const dynamicSchema = {};
-    parameterValues.forEach(param => {
-        dynamicSchema[param] = String;
-    });
-
-
-    console.log(dynamicSchema)
-    projectDataSchema.add(dynamicSchema);
-
-    const projectDataModel = mongoose.models[projectName] || mongoose.model(projectName, projectDataSchema, projectName);
-
-    //creates dynamic field according to parameterValues
-    const projectDataObject = {};
-    parameterValues.forEach(param => {
-        projectDataObject[param] = req.query[param];
-    });
-
-    const projectData = new projectDataModel(projectDataObject);
-    projectData.save()
-        .then(() => {
-            res.status(201).json({ message: "Project data stored" });
-        })
-        .catch(err => res.status(500).json({ error: err.message }));
-}
 
 
 //BPCL INSERT LINK
@@ -341,25 +312,99 @@ export const BPCL_ASCAN_CLEAR = async(req,res) =>{
 
 
 
+// AUTOMATED DASHBOARD
 
-export const displayProjectDataLimit = async (req,res) => {
-    const {projectName, limit} = req.body;
+// register link
+export const Creating_project = async (req, res) => {
+  try {
+    const { data } = req.body;
+    const existingProject = await EmployeeModel.findOne({
+      Project: data.projectName,
+    });
+
+    if (existingProject) {
+      return res.status(409).json({ message: "Project already exists" });
+    }
+
+    let password = await bcrypt.hash(data.password, 10);
+
+    const newProject = new EmployeeModel({
+      Project: data.projectName,
+      Email: data.email,
+      Password: password,
+      Parameters: data.parameters,
+      ParameterValues: data.parameterValues,
+    });
+
+    newProject
+      .save()
+      .then(() => {
+        res.status(201).json({ message: "Project stored" });
+      })
+      .catch((err) => res.status(500).json({ error: err.message }));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+// insert link
+const projectDataSchema = new mongoose.Schema({}, { timestamps: true });
+
+export const insertProjectData = (req, res) => {
+  const projectName = req.query.projectName;
+  const parameterValues = Object.keys(req.query).filter(
+    (key) => key !== "projectName"
+  );
+
+  //creates dynamic schema
+  const dynamicSchema = {};
+  parameterValues.forEach((param) => {
+    dynamicSchema[param] = String;
+  });
+
+  console.log(dynamicSchema);
+  projectDataSchema.add(dynamicSchema);
+
+  const projectDataModel =
+    mongoose.models[projectName] ||
+    mongoose.model(projectName, projectDataSchema, projectName);
+
+  //creates dynamic field according to parameterValues
+  const projectDataObject = {};
+  parameterValues.forEach((param) => {
+    projectDataObject[param] = req.query[param];
+  });
+
+  const projectData = new projectDataModel(projectDataObject);
+  projectData
+    .save()
+    .then(() => {
+      res.status(201).json({ message: "Project data stored" }); 
+    })
+    .catch((err) => res.status(500).json({ error: err.message }));
+};
+
+// get link
+export const getAutoDashData = async (req, res) => {
+  try {
+    const projectName = req.query.project;
+    const limit = parseInt(req.query.limit);
+
     const collection = mongoose.connection.db.collection(projectName);
-    const projectData = await collection.find({}).sort({_id: -1}).limit(limit).toArray();
-    let result = '';
-        if (projectData.length > 0) 
-        {
-            console.log(`Collection ${projectName} found`);
-            res.json({ result: `Collection ${projectName} found`,success: true, data: projectData });
-        } 
-        else 
-        {
-            console.log(`Collection ${projectName} not found`);
-            result = `Collection ${projectName} not found`;
-        }
-}
+    const autoDashData = await collection.find({}).sort({ _id: -1 }).limit(limit).toArray();
 
-//Source apis
+    if (autoDashData.length > 0) {
+      res.json({ success: true, data: autoDashData });
+    } else {
+      res.json({ success: true, data: `Collection ${projectName} not found` });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+
 export const displayProjectData = async (req, res) => {
     try{
         const {project} = req.query;
@@ -379,83 +424,71 @@ export const displayProjectData = async (req, res) => {
     }
 }
 
+// export const displayProjectDataLimit = async (req,res) => {
+//     const {projectName, limit} = req.body;
+//     const collection = mongoose.connection.db.collection(projectName);
+//     const projectData = await collection.find({}).sort({_id: -1}).limit(limit).toArray();
+//     let result = '';
+//         if (projectData.length > 0) 
+//         {
+//             console.log(`Collection ${projectName} found`);
+//             res.json({ result: `Collection ${projectName} found`,success: true, data: projectData });
+//         } 
+//         else 
+//         {
+//             console.log(`Collection ${projectName} not found`);
+//             result = `Collection ${projectName} not found`;
+//         }
+// }
 
-export const displayProjectReportData = async (req, res) => {
-    try{
-        const {project,Count} = req.query;
-        let a = project
-        let b =parseInt(Count)
-        const collection = mongoose.connection.db.collection(a);
-        const projectData = await collection.find({}).sort({_id: -1}).limit(b).toArray();
-        if(projectData.length >0){
-            res.json({success: true, data: projectData });
-        }
-        else 
-        {
-            res.json({success: true, data: `Collection ${projectName} not found` });
-        }
-    }catch(error){
-        res.status(500).json({ error: error.message });
-    }
-}
+// export const displayProjectReportData = async (req, res) => {
+//     try{
+//         const {project,Count} = req.query;
+//         let a = project
+//         let b =parseInt(Count)
+//         const collection = mongoose.connection.db.collection(a);
+//         const projectData = await collection.find({}).sort({_id: -1}).limit(b).toArray();
+//         if(projectData.length >0){
+//             res.json({success: true, data: projectData });
+//         }
+//         else 
+//         {
+//             res.json({success: true, data: `Collection ${projectName} not found` });
+//         }
+//     }catch(error){
+//         res.status(500).json({ error: error.message });
+//     }
+// }
 
 
-export const DisplayAllData = async (req, res) => {
-    try{
-        const {project,sensorname,chartlength} = req.query;
+// export const DisplayAllData = async (req, res) => {
+//     try{
+//         const {project,sensorname,chartlength} = req.query;
         
-        let a = project
-        let b = parseInt(chartlength);
-        const query = {};
-        query[sensorname] = { $exists: true };
+//         let a = project
+//         let b = parseInt(chartlength);
+//         const query = {};
+//         query[sensorname] = { $exists: true };
 
-        const collection = mongoose.connection.db.collection(a);
-        const projectData = await collection.find({}).sort({_id: -1}).limit(b).toArray();
-        const sensor1Data = projectData.map(doc => doc[sensorname]);
+//         const collection = mongoose.connection.db.collection(a);
+//         const projectData = await collection.find({}).sort({_id: -1}).limit(b).toArray();
+//         const sensor1Data = projectData.map(doc => doc[sensorname]);
     
-        if(sensor1Data.length >0){
-            res.json({success: true, data: sensor1Data });
+//         if(sensor1Data.length >0){
+//             res.json({success: true, data: sensor1Data });
            
-        }
-        else 
-        {
-            res.json({success: true, data: `Collection ${projectName} not found` });
-        }
+//         }
+//         else 
+//         {
+//             res.json({success: true, data: `Collection ${projectName} not found` });
+//         }
 
-    }catch(error){
-        res.status(500).json({ error: error.message });
-    }
-}
+//     }catch(error){
+//         res.status(500).json({ error: error.message });
+//     }
+// }
 
-export const Creating_project = async (req, res) => {
-    try {
-      const { data } = req.body;
-      const existingProject = await EmployeeModel.findOne({ Project: data.projectName });
-  
-      if (existingProject) {
-        return res.status(409).json({ message: "Project already exists" });
-      }
 
-      let password = await bcrypt.hash(data.password, 10);
-
-      const newProject = new EmployeeModel({
-        Project: data.projectName,
-        Email: data.email,
-        Password: password, 
-        Parameters: data.parameters,
-        ParameterValues: data.parameterValues
-      });
-
-      newProject.save()
-        .then(() => {
-          res.status(201).json({ message: "Project stored" });
-        })
-        .catch(err => res.status(500).json({ error: err.message }));
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
-  
   //level mobile application
   export const levelinsert = async (req, res) => {
     const {

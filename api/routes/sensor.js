@@ -13,13 +13,13 @@ import {
   BPCL_ASCAN_CLEAR,
   Creating_project,
   leveldata,
-  displayProjectData,
+  // displayProjectData,
   levelinsert,
   levelchartdata,
-  displayProjectDataLimit,
+  // displayProjectDataLimit,
   levelexceldata,
-  DisplayAllData,
-  displayProjectReportData,
+  // DisplayAllData,
+  // displayProjectReportData,
   insertIOCLData,
   getIOCLData,
   insertDemokitUtmapsData,
@@ -31,6 +31,7 @@ import {
   insertDemokitZtarData,
   getDemokitZtarData,
   getDemokitZtarReport,
+  getAutoDashData,
 } from "../controllers/sensor.js";
 
 const router = express.Router();
@@ -38,22 +39,29 @@ const router = express.Router();
 //register
 router.get('/signup',signup);
 router.post('/login',login);
+
+//skf
 router.get('/InsertData',InsertData);
 router.get('/readLimitMain',readLimitMain); 
 router.get('/read',read);
 router.get('/readSensor/:sensorId',readSensorGraph);
-router.get('/insertProjectData',insertProjectData);
+
 
 //BPCL
 router.get('/XYMA_BPCL',BPCL)
 router.get('/BPCL_READ',BPCL_READ)
 router.get('/BPCL_TOF_INSERT',BPCL_TOF_INSERT)
 router.post('/BPCL_ASCAN_CLEAR',BPCL_ASCAN_CLEAR)
+
+// automated dashboard
 router.post('/Creating_project',Creating_project);
-router.post('/displayProjectDataLimit',displayProjectDataLimit);
-router.get('/displayProjectData',displayProjectData);
-router.get('/DisplayProjectReport',displayProjectReportData)
-router.get('/project_all_data',DisplayAllData);
+router.get("/insertProjectData", insertProjectData);
+router.get("/getAutoDashData", getAutoDashData);
+// router.post('/displayProjectDataLimit',displayProjectDataLimit);
+// router.get('/displayProjectData',displayProjectData);
+// router.get('/DisplayProjectReport',displayProjectReportData)
+// router.get('/project_all_data',DisplayAllData);
+
 //level mobile application
 router.get('/levelinsert', levelinsert)
 router.get('/leveldata/:id', leveldata)
