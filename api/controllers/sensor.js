@@ -392,7 +392,12 @@ export const getAutoDashData = async (req, res) => {
     const limit = parseInt(req.query.limit);
 
     const collection = mongoose.connection.db.collection(projectName);
-    const autoDashData = await collection.find({}).sort({ _id: -1 }).limit(limit).toArray();
+    const autoDashData = await collection
+      .find({})
+      .sort({ _id: -1 })
+      .limit(limit)
+      .project({__v: 0, updatedAt: 0, _id: 0})
+      .toArray();
 
     if (autoDashData.length > 0) {
       res.json({ success: true, data: autoDashData });
@@ -405,24 +410,24 @@ export const getAutoDashData = async (req, res) => {
 };
 
 
-export const displayProjectData = async (req, res) => {
-    try{
-        const {project} = req.query;
-        let a = project
-        const collection = mongoose.connection.db.collection(a);
-        const projectData = await collection.find({}).sort({_id: -1}).limit(100).toArray();
-        if(projectData.length >0){
-            res.json({success: true, data: projectData });
-        }
-        else 
-        {
-            res.json({success: true, data: `Collection ${projectName} not found` });
-        }
+// export const displayProjectData = async (req, res) => {
+//     try{
+//         const {project} = req.query;
+//         let a = project
+//         const collection = mongoose.connection.db.collection(a);
+//         const projectData = await collection.find({}).sort({_id: -1}).limit(100).toArray();
+//         if(projectData.length >0){
+//             res.json({success: true, data: projectData });
+//         }
+//         else 
+//         {
+//             res.json({success: true, data: `Collection ${projectName} not found` });
+//         }
 
-    }catch(error){
-        res.status(500).json({ error: error.message });
-    }
-}
+//     }catch(error){
+//         res.status(500).json({ error: error.message });
+//     }
+// }
 
 // export const displayProjectDataLimit = async (req,res) => {
 //     const {projectName, limit} = req.body;
