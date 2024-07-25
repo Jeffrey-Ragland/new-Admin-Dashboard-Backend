@@ -410,42 +410,73 @@ export const getAutoDashData = async (req, res) => {
 };
 
 // report link
-export const getAutoDashReportData = async (req,res) => {
+export const getAutoDashReportData = async (req, res) => {
   try {
-    const { projectName, fromDate, toDate, count} = req.query;
+    const {
+      projectName,
+      fromDate,
+      toDate,
+      count,
+      unselectedSensors,
+      sensorWiseFromDate,
+      sensorWiseToDate,
+      sensorWiseCount,
+    } = req.query;
 
     const collection = mongoose.connection.db.collection(projectName);
 
-    let query ={};
-    let sort = {_id: -1};
-    let limit = 0
+    let query = {};
+    let sort = { _id: -1 };
+    const unselectedSensorsArray = unselectedSensors ? unselectedSensors.split(",") : [];
+    console.log("unselected sensors array:", unselectedSensorsArray);
 
-    if(fromDate || toDate) {
-      const newToDay = new Date(toDate);
-      newToDay.setDate(newToDay.getDate() + 1);
+    if (fromDate || toDate) {
+      const newToDate = new Date(toDate);
+      newToDate.setDate(newToDate.getDate() + 1);
 
       query = {
-        createdAt: { $gte: new Date(fromDate), $lte: newToDay }
+        createdAt: { $gte: new Date(fromDate), $lte: newToDate },
       };
     };
 
-    if(count) {
-      limit = count;
+    if(sensorWiseFromDate || sensorWiseToDate) {
+      const newSensorWiseToDate = new Date(sensorWiseToDate);
+      newSensorWiseToDate.setDate(newSensorWiseToDate.getDate() + 1);
+
+      query = {
+        createdAt: {
+          $gte: new Date(sensorWiseFromDate),
+          $lte: newSensorWiseToDate,
+        },
+      };
     };
 
-    
-    const autoDashReportData = await collection
-      .find(query)
-      .sort(sort)
-      .limit(limit > 0 ? limit : 0)
-      .project({ __v: 0, updatedAt: 0, _id: 0 })
-      .toArray();
+    let projection = { __v: 0, updatedAt: 0, _id: 0,};
+
+    if (unselectedSensorsArray.length > 0) {
+      unselectedSensorsArray.forEach((sensor) => {
+        projection[sensor] = 0;
+      });
+    };
+
+    let cursor = collection.find(query).sort(sort).project(projection);
+
+    if (count) {
+      cursor = cursor.limit(parseInt(count));
+    };
+
+    if(sensorWiseCount) {
+      cursor = cursor.limit(parseInt(sensorWiseCount));
+    };
+
+    const autoDashReportData = await cursor.toArray();
 
     res.json({ success: true, data: autoDashReportData });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server Error" });
+      res.status(500).json({ success: false, message: "Server Error" });
+    };
   };
-};
+
 
 
 // export const displayProjectData = async (req, res) => {
