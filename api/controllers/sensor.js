@@ -409,6 +409,44 @@ export const getAutoDashData = async (req, res) => {
   }
 };
 
+// report link
+export const getAutoDashReportData = async (req,res) => {
+  try {
+    const { projectName, fromDate, toDate, count} = req.query;
+
+    const collection = mongoose.connection.db.collection(projectName);
+
+    let query ={};
+    let sort = {_id: -1};
+    let limit = 0
+
+    if(fromDate || toDate) {
+      const newToDay = new Date(toDate);
+      newToDay.setDate(newToDay.getDate() + 1);
+
+      query = {
+        createdAt: { $gte: new Date(fromDate), $lte: newToDay }
+      };
+    };
+
+    if(count) {
+      limit = count;
+    };
+
+    
+    const autoDashReportData = await collection
+      .find(query)
+      .sort(sort)
+      .limit(limit > 0 ? limit : 0)
+      .project({ __v: 0, updatedAt: 0, _id: 0 })
+      .toArray();
+
+    res.json({ success: true, data: autoDashReportData });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  };
+};
+
 
 // export const displayProjectData = async (req, res) => {
 //     try{

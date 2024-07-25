@@ -32,6 +32,7 @@ import {
   getDemokitZtarData,
   getDemokitZtarReport,
   getAutoDashData,
+  getAutoDashReportData,
 } from "../controllers/sensor.js";
 
 const router = express.Router();
@@ -57,6 +58,7 @@ router.post('/BPCL_ASCAN_CLEAR',BPCL_ASCAN_CLEAR)
 router.post('/Creating_project',Creating_project);
 router.get("/insertProjectData", insertProjectData);
 router.get("/getAutoDashData", getAutoDashData);
+router.get("/getAutoDashReportData", getAutoDashReportData);
 // router.post('/displayProjectDataLimit',displayProjectDataLimit);
 // router.get('/displayProjectData',displayProjectData);
 // router.get('/DisplayProjectReport',displayProjectReportData)
