@@ -10,6 +10,7 @@ import ioclModel from '../model/ioclModel.js';
 import demokitUtmapsModel from '../model/demokitUtmapsModel.js';
 import demokitPortsModel from '../model/demokitPortsModel.js';
 import demokitZtarModel from '../model/demokitZtarModel.js';
+import processControlModel from '../model/processControlModel.js';
 
 //Register
 // http://localhost:4000/sensor/signup?project=[projectName]&userid=[email]&password=[password]
@@ -428,7 +429,6 @@ export const getAutoDashReportData = async (req, res) => {
     let query = {};
     let sort = { _id: -1 };
     const unselectedSensorsArray = unselectedSensors ? unselectedSensors.split(",") : [];
-    console.log("unselected sensors array:", unselectedSensorsArray);
 
     if (fromDate || toDate) {
       const newToDate = new Date(toDate);
@@ -679,8 +679,32 @@ export const levelchartdata = async (req, res) => {
       };
 
 
-// demokit utmaps api
+// process control to indicate current project
+export const updateProcessControl = async (req,res) => {
+  const {projectName} = req.body;
 
+  try {
+    await processControlModel.findOneAndUpdate({}, {$set: { currentProject: projectName }},  { new: true, upsert: true });
+    res.status(200).send('Project updated successfully');
+  } catch(error) {
+    res.status(500).send('Error updating project');
+  };
+};
+
+// http://localhost:4000/sensor/getProcessControl
+export const getProcessControl = async (req,res) => {
+  try {
+    const project = await processControlModel.findOne({});
+    if (!project) {
+      return res.status(404).send('No project found');
+    }
+    res.status(200).json({currentProject: project.currentProject});
+  } catch (error) {
+    res.status(500).send('Error fetching current project');
+  };
+};
+
+// demokit utmaps api
 // http://localhost:4000/sensor/insertDemokitUtmapsData?projectName=DEMOKIT01&sensor1=[insertData]&sensor2=[insertData]&sensor3=[insertData]&sensor4=[insertData]
 
 export const insertDemokitUtmapsData = async (req,res) => {

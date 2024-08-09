@@ -22,6 +22,8 @@ import {
   // displayProjectReportData,
   insertIOCLData,
   getIOCLData,
+  updateProcessControl,
+  getProcessControl,
   insertDemokitUtmapsData,
   getDemokitUtmapsData,
   getDemokitUtmapsReport,
@@ -73,6 +75,10 @@ router.get('/levelexceldata', levelexceldata)
 //iocl - jeff 
 router.get('/insertIOCLData', insertIOCLData);
 router.get('/getIOCLData', getIOCLData);
+
+// process control
+router.post('/updateProcessControl', updateProcessControl);
+router.get("/getProcessControl", getProcessControl);
 
 // demokit utmaps
 router.get("/insertDemokitUtmapsData", insertDemokitUtmapsData);
