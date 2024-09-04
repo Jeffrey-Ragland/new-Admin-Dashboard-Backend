@@ -740,6 +740,9 @@ export const getDemokitUtmapsData = async (req,res) => {
     try {
       const projectName = req.query.projectNumber;
       const limit = parseInt(req.query.limit);
+      const unit = req.query.unit;
+
+      console.log('unit', unit);
 
       const demokitUtmapsData = await demokitUtmapsModel
         .find({ ProjectName: projectName })
@@ -747,6 +750,18 @@ export const getDemokitUtmapsData = async (req,res) => {
         .limit(limit);
 
       if (demokitUtmapsData.length > 0) {
+        if(unit === 'F') {
+          demokitUtmapsData.forEach((data) => {
+            data.Sensor1 = (parseFloat(data.Sensor1) * 9/5) + 32;
+            data.Sensor2 = (parseFloat(data.Sensor2) * 9/5) + 32;
+          });
+        } else if(unit === 'K') {
+          demokitUtmapsData.forEach((data) => {
+            data.Sensor1 = parseFloat(data.Sensor1) + 273.15;
+            data.Sensor2 = parseFloat(data.Sensor2) + 273.15;
+          })
+        }
+        
         res.json({ success: true, data: demokitUtmapsData });
       } else {
         res.json({ success: false, message: "Utmaps Data not found" });
