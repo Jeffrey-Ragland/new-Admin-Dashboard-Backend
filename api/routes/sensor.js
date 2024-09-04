@@ -27,6 +27,9 @@ import {
   insertDemokitUtmapsData,
   getDemokitUtmapsData,
   getDemokitUtmapsReport,
+  setInitialDemokitUtmapsModelLimit,
+  getDemokitUtmapsModelLimit,
+  updateDemokitUtmapsModelLimit,
   insertDemokitPortsData,
   getDemokitPortsData,
   getDemokitPortsReport,
@@ -84,6 +87,9 @@ router.get("/getProcessControl", getProcessControl);
 router.get("/insertDemokitUtmapsData", insertDemokitUtmapsData);
 router.get("/getDemokitUtmapsData", getDemokitUtmapsData);
 router.get("/getDemokitUtmapsReport", getDemokitUtmapsReport);
+router.get("/setInitialDemokitUtmapsModelLimit", setInitialDemokitUtmapsModelLimit);
+router.post("/getDemokitUtmapsModelLimit", getDemokitUtmapsModelLimit);
+router.post("/updateDemokitUtmapsModelLimit", updateDemokitUtmapsModelLimit);
 
 // ports
 router.get("/insertDemokitPortsData", insertDemokitPortsData);

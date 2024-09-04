@@ -5,12 +5,14 @@ import EmployeeModel from '../model/userModel.js';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mongoose from 'mongoose';
+import axios from 'axios';
 import levelmodel from '../model/levelmodel.js';
 import ioclModel from '../model/ioclModel.js';
 import demokitUtmapsModel from '../model/demokitUtmapsModel.js';
 import demokitPortsModel from '../model/demokitPortsModel.js';
 import demokitZtarModel from '../model/demokitZtarModel.js';
 import processControlModel from '../model/processControlModel.js';
+import demokitUtmapsIndicationModel from '../model/demokitUtmapsIndicationModel.js';
 
 //Register
 // http://localhost:4000/sensor/signup?project=[projectName]&userid=[email]&password=[password]
@@ -681,6 +683,11 @@ export const levelchartdata = async (req, res) => {
 
 // process control to indicate current project
 export const updateProcessControl = async (req,res) => {
+  // const data = await axios.get("http://localhost:4000/sensor/getProcessControl");
+  // if(data.status === 200) {
+  //   console.log(data.currentProject);
+  // }
+  // console.log(data);
   const {projectName} = req.body;
 
   try {
@@ -774,6 +781,66 @@ export const getDemokitUtmapsReport = async (req,res) => {
         res.status(500).json({error});
     };
 };
+
+// http://localhost:4000/sensor/setInitialDemokitUtmapsModelLimit?projectNumber=[projectNumber]&modelLimitS1=[modelLimitS1]&modelLimitS2=[modelLimitS2]
+export const setInitialDemokitUtmapsModelLimit = async(req, res) =>{
+  const {projectNumber, modelLimitS1, modelLimitS2 } = req.query;
+
+  try {
+    await demokitUtmapsIndicationModel.create({
+      ProjectNumber: projectNumber,
+      ModelLimitS1: modelLimitS1,
+      ModelLimitS2: modelLimitS2,
+    });
+    res.status(200).json({message: "Initial model limit set successfully"});
+  } catch(error) {
+    res.status(500).json({error});
+  };
+};
+
+export const getDemokitUtmapsModelLimit = async(req, res) => {
+  const { projectNumber } = req.body;
+
+  try {
+    const limit = await demokitUtmapsIndicationModel.findOne({ProjectNumber: projectNumber});
+    if(limit) {
+      res.status(200).json({
+        success: true,
+        data: {
+          ModelLimitS1: limit.ModelLimitS1,
+          ModelLimitS2: limit.ModelLimitS2,
+        },
+      });
+    } else {
+      res.status(404).json({message: 'cant get limit'});
+    }
+  } catch (error) {
+    res.status(500).send("Error fetching model limit");
+  }
+};
+
+export const updateDemokitUtmapsModelLimit = async (req, res) => {
+  const { projectNumber, modelLimitS1, modelLimitS2 } = req.body;
+
+  try {
+    const updateFields = {};
+    if (modelLimitS1 && modelLimitS1.trim() !== "") {
+      updateFields.ModelLimitS1 = modelLimitS1;
+    }
+    if (modelLimitS2 && modelLimitS2.trim() !== "") {
+      updateFields.ModelLimitS2 = modelLimitS2;
+    }
+
+    await demokitUtmapsIndicationModel.findOneAndUpdate(
+      { ProjectNumber: projectNumber },
+      { $set: updateFields },
+      { new: true, upsert: true }
+    );
+    res.status(200).send("Model Limit updated successfully");
+  } catch (error) {
+    res.status(500).send("Error updating limit");
+  }
+}
 
 // demokit ports api
 // http://localhost:4000/sensor/insertDemokitPortsData?projectName=DEMOKIT01&temperature=[insertData]&density=[insertData]&viscosity=[insertData]
