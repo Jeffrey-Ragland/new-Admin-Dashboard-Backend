@@ -752,13 +752,14 @@ export const getDemokitUtmapsData = async (req,res) => {
       if (demokitUtmapsData.length > 0) {
         if(unit === 'F') {
           demokitUtmapsData.forEach((data) => {
-            data.Sensor1 = (parseFloat(data.Sensor1) * 9/5) + 32;
-            data.Sensor2 = (parseFloat(data.Sensor2) * 9/5) + 32;
+            data.Sensor1 = ((parseFloat(data.Sensor1) * 9/5) + 32).toFixed(1);
+            data.Sensor2 = ((parseFloat(data.Sensor2) * 9/5) + 32).toFixed(1);
           });
         } else if(unit === 'K') {
           demokitUtmapsData.forEach((data) => {
-            data.Sensor1 = parseFloat(data.Sensor1) + 273.15;
-            data.Sensor2 = parseFloat(data.Sensor2) + 273.15;
+            data.Sensor1 = (parseFloat(data.Sensor1) + 273.15).toFixed(1);
+            data.Sensor2 = (parseFloat(data.Sensor2) + 273.15).toFixed(1);
+            // console.log(data.Sensor1)
           })
         }
         
