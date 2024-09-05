@@ -742,7 +742,7 @@ export const getDemokitUtmapsData = async (req,res) => {
       const limit = parseInt(req.query.limit);
       const unit = req.query.unit;
 
-      console.log('unit', unit);
+      // console.log('unit', unit);
 
       const demokitUtmapsData = await demokitUtmapsModel
         .find({ ProjectName: projectName })
