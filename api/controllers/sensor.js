@@ -862,7 +862,6 @@ export const updateDemokitUtmapsModelLimit = async (req, res) => {
 // http://localhost:4000/sensor/insertDemokitPortsData?projectName=DEMOKIT01&temperature=[insertData]&density=[insertData]&viscosity=[insertData]
 
 export const insertDemokitPortsData = async (req,res) => {
-
     const {projectName, temperature, density, viscosity} = req.query;
 
     if( !projectName || !temperature || !density || !viscosity ) {
