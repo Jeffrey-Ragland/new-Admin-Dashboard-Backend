@@ -721,6 +721,9 @@ export const insertDemokitUtmapsData = async (req,res) => {
     if ( !projectName || !sensor1 || !sensor2 || !sensor3 || !sensor4 ) {
         return res.status(400).json({ error: 'Missing required parameters'});
     }
+
+
+    
     try {
       const demokitUtmapsData = {
         ProjectName : projectName,
